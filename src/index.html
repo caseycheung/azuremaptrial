@@ -37,52 +37,64 @@
             }
         });
 
-        //Use TokenCredential with Token
-        var tokenCredential = new atlas.service.TokenCredential("8cbef94c-e62c-4070-94c6-39e7c9542f09", map.authentication.getToken());
+        //Create a HTML marker and add it to the map.
+        var marker = new atlas.HtmlMarker({
+                text: '',
+                position: [-122.33, 47.6],
+                popup: new atlas.Popup({
+                    content: '<div style="padding:10px">Hello World</div>',
+                    pixelOffset: [0, -30]
+                })
+            });
 
-        // Use subscriptionKeyCredential to create a pipeline
-        var pipeline = atlas.service.MapsURL.newPipeline(tokenCredential);
+        map.markers.add(marker);
 
-        // Construct the SearchURL object
-        var searchURL = new atlas.service.SearchURL(pipeline);
+        // //Use TokenCredential with Token
+        // var tokenCredential = new atlas.service.TokenCredential("8cbef94c-e62c-4070-94c6-39e7c9542f09", map.authentication.getToken());
 
-        map.events.add("load", function(e){
-            /* Update the style of mouse cursor to a pointer */
-            map.getCanvasContainer().style.cursor = "pointer";
+        // // Use subscriptionKeyCredential to create a pipeline
+        // var pipeline = atlas.service.MapsURL.newPipeline(tokenCredential);
 
-            /* Create a popup */
-            var popup = new atlas.Popup();
+        // // Construct the SearchURL object
+        // var searchURL = new atlas.service.SearchURL(pipeline);
 
-            /* Upon a mouse click, open a popup at the clicked location and render in the popup the address of the clicked location*/
-            map.events.add("click", function(e){
-                var position = [e.position[0], e.position[1]];
+        // map.events.add("load", function(e){
+        //     /* Update the style of mouse cursor to a pointer */
+        //     map.getCanvasContainer().style.cursor = "pointer";
 
-                /* Execute the reverse address search query and open a popup once a response is received */
-                searchURL.searchAddressReverse(atlas.service.Aborter.timeout(10000), 
-                                               position, 
-                                               {
-                                                    allowFreeformNewline: true
-                                               }).then((addresses) => {
-                                                            //Get data features from response
-                                                            var data = addresses.geojson.getFeatures();
+        //     /* Create a popup */
+        //     var popup = new atlas.Popup();
 
-                                                            // Construct the popup
-                                                            var popupContent = document.createElement("div");
-                                                            popupContent.classList.add("popup-content");
-                                                            popupContent.innerHTML = 
-                                                                data.length !== 0
-                                                                ? data.features[0].properties.address.freeformAddress
-                                                            : "No address for that location!";
-                                                            popup.setPopupOptions({
-                                                                position: e.position,
-                                                                content: popupContent
-                                                            });
+        //     /* Upon a mouse click, open a popup at the clicked location and render in the popup the address of the clicked location*/
+        //     map.events.add("click", function(e){
+        //         var position = [e.position[0], e.position[1]];
 
-                                                            // Render the popup on the map 
-                                                            popup.open(map);
-                                                        });
-            });             
-        });
+        //         /* Execute the reverse address search query and open a popup once a response is received */
+        //         searchURL.searchAddressReverse(atlas.service.Aborter.timeout(10000), 
+        //                                        position, 
+        //                                        {
+        //                                             allowFreeformNewline: true
+        //                                        }).then((addresses) => {
+        //                                                     //Get data features from response
+        //                                                     var data = addresses.geojson.getFeatures();
+
+        //                                                     // Construct the popup
+        //                                                     var popupContent = document.createElement("div");
+        //                                                     popupContent.classList.add("popup-content");
+        //                                                     popupContent.innerHTML = 
+        //                                                         data.length !== 0
+        //                                                         ? data.features[0].properties.address.freeformAddress
+        //                                                     : "No address for that location!";
+        //                                                     popup.setPopupOptions({
+        //                                                         position: e.position,
+        //                                                         content: popupContent
+        //                                                     });
+
+        //                                                     // Render the popup on the map 
+        //                                                     popup.open(map);
+        //                                                 });
+        //     });             
+        // });
     }
     </script>
 
