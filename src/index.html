@@ -14,6 +14,7 @@
     <script src="https://atlas.microsoft.com/sdk/javascript/service/2/atlas-service.min.js"></script>
 
     <script>
+    function getMap() {
         //Instantiate a map object
         var map = new atlas.Map("map", {
             center: [-122.33, 47.6],
@@ -82,6 +83,7 @@
                                                         });
             });             
         });
+    }
     </script>
 
     <style>
@@ -100,7 +102,7 @@
     </style>
 </head>
 
-<body>
+<body onload="getMap()">
     <div id="map"></div>
 </body>
 
