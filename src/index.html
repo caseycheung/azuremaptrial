@@ -14,81 +14,73 @@
     <script src="https://atlas.microsoft.com/sdk/javascript/service/2/atlas-service.min.js"></script>
 
     <script>
-        function GetMap() {
-            //Instantiate a map object
-            var map = new atlas.Map("myMap", {
-                center: [-122.33, 47.6],
-                zoom: 12,
-                minZoom: 9,
-                maxZoom: 15,
-                language: 'en-US',
-                interactive: true,
-                dragPanInteraction: false,
-                dragRotateInteraction: false,
-                //Add your Azure Maps subscription key to the map SDK. Get an Azure Maps key at https://azure.com/maps
-                authOptions: {
-                    authType: 'anonymous',
-                    clientId: "6b14c4ab-780f-45b1-bd04-7fa4fb36da6e",
-                    getToken: function (resolve, reject, map) {
-                        //URL to your authentication service that retrieves an Azure Active Directory Token.
-                        var tokenServiceUrl = "https://ccesdc001mapfunction.azurewebsites.net/api/Function1?code=yH08CJe2pHWn6moTAVOzrBaQW3X23Xbk4EKLwoaBajOz0Mj2QoSv3w==";
-                        fetch(tokenServiceUrl).then(r => r.text()).then(token => resolve(token));
-                    }
+        //Instantiate a map object
+        var map = new atlas.Map("myMap", {
+            center: [-122.33, 47.6],
+            zoom: 12,
+            minZoom: 9,
+            maxZoom: 15,
+            language: 'en-US',
+            interactive: true,
+            dragPanInteraction: false,
+            dragRotateInteraction: false,
+            //Add your Azure Maps subscription key to the map SDK. Get an Azure Maps key at https://azure.com/maps
+            authOptions: {
+                authType: 'anonymous',
+                clientId: "6b14c4ab-780f-45b1-bd04-7fa4fb36da6e",
+                getToken: function (resolve, reject, map) {
+                    //URL to your authentication service that retrieves an Azure Active Directory Token.
+                    var tokenServiceUrl = "https://ccesdc001mapfunction.azurewebsites.net/api/Function1?code=yH08CJe2pHWn6moTAVOzrBaQW3X23Xbk4EKLwoaBajOz0Mj2QoSv3w==";
+                    fetch(tokenServiceUrl).then(r => r.text()).then(token => resolve(token));
                 }
+            }
+        });
+
+        //Use TokenCredential with Token
+        var tokenCredential = new atlas.service.TokenCredential("35267128-0f1e-41de-aa97-f7a7ec8c2dbd", map.authentication.getToken());
+
+        // Use subscriptionKeyCredential to create a pipeline
+        var pipeline = atlas.service.MapsURL.newPipeline(tokenCredential);
+
+        // Construct the SearchURL object
+        var searchURL = new atlas.service.SearchURL(pipeline);
+
+        map.events.add("load", function(e){
+
+        /* Update the style of mouse cursor to a pointer */
+        map.getCanvasContainer().style.cursor = "pointer";
+
+        /* Create a popup */
+        var popup = new atlas.Popup();
+
+        /* Upon a mouse click, open a popup at the clicked location and render in the popup the address of the clicked location*/
+        map.events.add("click", function(e){
+            var position = [e.position[0], e.position[1]];
+
+            /* Execute the reverse address search query and open a popup once a response is received */
+            searchURL.searchAddressReverse(atlas.service.Aborter.timeout(10000), position, {
+            allowFreeformNewline: true
+            }).then((addresses) => {
+            //Get data features from response
+            var data = addresses.geojson.getFeatures();
+
+            // Construct the popup
+            var popupContent = document.createElement("div");
+            popupContent.classList.add("popup-content");
+            popupContent.innerHTML = 
+                data.length !== 0
+                ? data.features[0].properties.address.freeformAddress
+            : "No address for that location!";
+            popup.setPopupOptions({
+                position: e.position,
+                content: popupContent
             });
 
-            var tokenCredential = new atlas.service.TokenCredential("6b14c4ab-780f-45b1-bd04-7fa4fb36da6e", map.authentication.getToken());
-            var pipeline = atlas.service.MapsURL.newPipeline(tokenCredential);
-
-
-            // var map = new atlas.Map("myMap", {
-            //     center: [-122.33, 47.6],
-            //     zoom: 12,
-            //     minZoom: 9,
-            //     maxZoom: 15,
-            //     language: 'en-US',
-            //     interactive: true,
-            //     dragPanInteraction: false,
-            //     dragRotateInteraction: false,
-            //     //Add your Azure Maps subscription key to the map SDK. Get an Azure Maps key at https://azure.com/maps
-            //     authOptions: {
-            //         authType: 'aad',
-            //         clientId: "3de38999-357d-4b7b-b2d6-2d649cf4c138",
-            //         aadInstance: "https://login.microsoftonline.com/",
-            //         aadAppId: "60ba9a73-17fa-4af3-b6a0-527808b40148",
-            //         aadTenant: "9ed55846-8a81-4246-acd8-b1a01abfc0d1"
-            //     }
-            // });
-
-            // var map = new atlas.Map("myMap", {
-            //     center: [-122.33, 47.6],
-            //     zoom: 12,
-            //     minZoom: 9,
-            //     maxZoom: 15,
-            //     language: 'en-US',
-            //     interactive: true,
-            //     dragPanInteraction: false,
-            //     dragRotateInteraction: false,
-            //     //Add your Azure Maps subscription key to the map SDK. Get an Azure Maps key at https://azure.com/maps
-            //     authOptions: {
-            //         authType: 'subscriptionKey',
-            //         subscriptionKey: '58m20sMNt1meFR1CkobDtOyz5NXRK6qbTy2SxCauOI0'
-            //     }
-            // });
-
-
-            //Create a HTML marker and add it to the map.
-            var marker = new atlas.HtmlMarker({
-                text: '',
-                position: [-122.33, 47.6],
-                popup: new atlas.Popup({
-                    content: '<div style="padding:10px">Hello World</div>',
-                    pixelOffset: [0, -30]
-                })
+            // Render the popup on the map 
+            popup.open(map);
             });
-
-            map.markers.add(marker);
-        }
+        });             
+        });
     </script>
 
     <style>
@@ -107,7 +99,7 @@
     </style>
 </head>
 
-<body onload="GetMap()">
+<body>
     <div id="myMap" class="hello"></div>
 </body>
 
