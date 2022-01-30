@@ -15,7 +15,7 @@
 
     <script>
         //Instantiate a map object
-        var map = new atlas.Map("myMap", {
+        var map = new atlas.Map("map", {
             center: [-122.33, 47.6],
             zoom: 12,
             minZoom: 9,
@@ -46,40 +46,41 @@
         var searchURL = new atlas.service.SearchURL(pipeline);
 
         map.events.add("load", function(e){
+            /* Update the style of mouse cursor to a pointer */
+            map.getCanvasContainer().style.cursor = "pointer";
 
-        /* Update the style of mouse cursor to a pointer */
-        map.getCanvasContainer().style.cursor = "pointer";
+            /* Create a popup */
+            var popup = new atlas.Popup();
 
-        /* Create a popup */
-        var popup = new atlas.Popup();
+            /* Upon a mouse click, open a popup at the clicked location and render in the popup the address of the clicked location*/
+            map.events.add("click", function(e){
+                var position = [e.position[0], e.position[1]];
 
-        /* Upon a mouse click, open a popup at the clicked location and render in the popup the address of the clicked location*/
-        map.events.add("click", function(e){
-            var position = [e.position[0], e.position[1]];
+                /* Execute the reverse address search query and open a popup once a response is received */
+                searchURL.searchAddressReverse(atlas.service.Aborter.timeout(10000), 
+                                               position, 
+                                               {
+                                                    allowFreeformNewline: true
+                                               }).then((addresses) => {
+                                                            //Get data features from response
+                                                            var data = addresses.geojson.getFeatures();
 
-            /* Execute the reverse address search query and open a popup once a response is received */
-            searchURL.searchAddressReverse(atlas.service.Aborter.timeout(10000), position, {
-            allowFreeformNewline: true
-            }).then((addresses) => {
-            //Get data features from response
-            var data = addresses.geojson.getFeatures();
+                                                            // Construct the popup
+                                                            var popupContent = document.createElement("div");
+                                                            popupContent.classList.add("popup-content");
+                                                            popupContent.innerHTML = 
+                                                                data.length !== 0
+                                                                ? data.features[0].properties.address.freeformAddress
+                                                            : "No address for that location!";
+                                                            popup.setPopupOptions({
+                                                                position: e.position,
+                                                                content: popupContent
+                                                            });
 
-            // Construct the popup
-            var popupContent = document.createElement("div");
-            popupContent.classList.add("popup-content");
-            popupContent.innerHTML = 
-                data.length !== 0
-                ? data.features[0].properties.address.freeformAddress
-            : "No address for that location!";
-            popup.setPopupOptions({
-                position: e.position,
-                content: popupContent
-            });
-
-            // Render the popup on the map 
-            popup.open(map);
-            });
-        });             
+                                                            // Render the popup on the map 
+                                                            popup.open(map);
+                                                        });
+            });             
         });
     </script>
 
@@ -100,7 +101,7 @@
 </head>
 
 <body>
-    <div id="myMap" class="hello"></div>
+    <div id="map"></div>
 </body>
 
 </html>
