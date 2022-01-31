@@ -19,12 +19,7 @@
         var map = new atlas.Map("map", {
             center: [-122.33, 47.6],
             zoom: 12,
-            minZoom: 9,
-            maxZoom: 15,
-            language: 'en-US',
-            interactive: true,
-            dragPanInteraction: false,
-            dragRotateInteraction: false,
+            view: "Auto",
             //Add your Azure Maps subscription key to the map SDK. Get an Azure Maps key at https://azure.com/maps
             authOptions: {
                 authType: 'anonymous',
