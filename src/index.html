@@ -43,7 +43,7 @@
                 getToken: function (resolve, reject, map) {
                     //URL to your authentication service that retrieves an Azure Active Directory Token.
                     var tokenServiceUrl = "https://ccesdc001mapfunction.azurewebsites.net/api/Function1?code=yH08CJe2pHWn6moTAVOzrBaQW3X23Xbk4EKLwoaBajOz0Mj2QoSv3w==";
-                    fetch(tokenServiceUrl).then(r => r.text()).then(token => resolve(token));
+                    fetch(tokenServiceUrl).then(r => r.text()).then(token => resolve(token.slize(1, -1)));
                 }
             }
         });
