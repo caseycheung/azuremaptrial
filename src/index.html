@@ -23,10 +23,12 @@
             //Add your Azure Maps subscription key to the map SDK. Get an Azure Maps key at https://azure.com/maps
             authOptions: {
                 authType: 'anonymous',
-                clientId: "6b14c4ab-780f-45b1-bd04-7fa4fb36da6e",
+                //clientId: "6b14c4ab-780f-45b1-bd04-7fa4fb36da6e",
+                clientId: "fac56aa6-324b-46f6-80ac-8d755ddee7fa", 
                 getToken: function (resolve, reject, map) {
                     //URL to your authentication service that retrieves an Azure Active Directory Token.
-                    var tokenServiceUrl = "https://ccesdc001mapfunction.azurewebsites.net/api/Function1?code=yH08CJe2pHWn6moTAVOzrBaQW3X23Xbk4EKLwoaBajOz0Mj2QoSv3w==";
+                    //var tokenServiceUrl = "https://ccesdc001mapfunction.azurewebsites.net/api/Function1?code=yH08CJe2pHWn6moTAVOzrBaQW3X23Xbk4EKLwoaBajOz0Mj2QoSv3w==";
+                    var tokenServiceUrl = "https://azuremapauthenticator-functionapp.azurewebsites.net/api/AzureMapAuthenticator?code=902pfAGapbjP3MNBkeDfRcnTGYWIi2oo8pdNQh4lOKFsLYqdLLeVow==";
                     fetch(tokenServiceUrl).then(r => r.text()).then(function(token) { resolve(token.slice(1, -1)); });
                 }
             }
